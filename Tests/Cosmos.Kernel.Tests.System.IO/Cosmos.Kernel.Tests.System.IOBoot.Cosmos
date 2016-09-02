@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{3dd68fd2-b052-495c-82e3-9d35827459d2}</ProjectGuid>
+    <ProjectGuid>{bc833de0-c18b-4e52-831a-fd21263650b5}</ProjectGuid>
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
     <Name>Cosmos.Kernel.Tests.System.IOBoot</Name>
     <BinFormat>elf</BinFormat>
@@ -26,9 +26,9 @@
     <VisualStudioDebugPort>Pipe: Cosmos\Serial</VisualStudioDebugPort>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include=".\Cosmos.Kernel.Tests.System.IO.Kernel">
+    <ProjectReference Include=".\Cosmos.Kernel.Tests.System.IO.">
       <Name>Cosmos.Kernel.Tests.System.IO</Name>
-      <Project>{4316fdf8-02ca-467f-945e-a1fa766d37c1}</Project>
+      <Project>{f90ac674-6cfe-459b-8882-3b102b36312a}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

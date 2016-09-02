@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{4316FDF8-02CA-467F-945E-A1FA766D37C1}</ProjectGuid>
+    <ProjectGuid>{F90AC674-6CFE-459B-8882-3B102B36312A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Cosmos.Kernel.Tests.System.IO</RootNamespace>
@@ -42,16 +42,6 @@
   <ItemGroup>
     <Compile Include="Kernel.cs" />
     <Compile Include="AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Tests\Cosmos.TestRunner.TestController\Cosmos.TestRunner.TestController.csproj">
-      <Project>{e6d3b644-c487-472d-a978-c1a82d0c099b}</Project>
-      <Name>Cosmos.TestRunner.TestController</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Cosmos.System.Plugs\Cosmos.System.Plugs.csproj">
-      <Project>{7c64b97f-516d-4a6d-b9e1-3fe48f561409}</Project>
-      <Name>Cosmos.System.Plugs</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
