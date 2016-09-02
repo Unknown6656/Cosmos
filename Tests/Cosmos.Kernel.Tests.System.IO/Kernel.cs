@@ -27,7 +27,7 @@ namespace Cosmos.Kernel.Tests.System.IO
         }
 
         protected override void Run()
-        {
+        {   
             Console.ForegroundColor = White;
             Console.WriteLine("\nPress (T) to start the tests or any other key to shut down the machine.");
 
@@ -65,6 +65,9 @@ namespace Cosmos.Kernel.Tests.System.IO
 
                     Console.ForegroundColor = total_err == 0 ? Green : Red;
                     Console.WriteLine($"{l - total_err}/{l} Tests have been successfull, {total_err} Errors occured.");
+
+                    if (total_err > 0)
+                        TestController.Failed();
                 }
                 catch (Exception ex)
                 {
