@@ -8,7 +8,7 @@ using Sys = Cosmos.System;
 
 namespace Cosmos.Kernel.Tests.System.IO
 {
-    public delegate int TestDelegate(Kernel k);
+    public unsafe delegate void TestDelegate(Kernel k, int* hresult);
 
     public class Kernel
         : Sys.Kernel
@@ -17,23 +17,25 @@ namespace Cosmos.Kernel.Tests.System.IO
         internal static readonly TestDelegate[] functions = new TestDelegate[] {
 
         };
-
+        
         protected override void BeforeRun()
         {
             Console.WriteLine("Testing Operating System for the namespace '[mscorlib.dll]global::System.IO.*'");
         }
 
-        protected override void Run()
+        protected unsafe override void Run()
         {
             try
             {
+                int hresult = 0;
+
                 for (int i = 0, l = functions.Length; i < l; i++)
                 {
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine($"Testing method {i + 1}/{l + 1} ...");
                     Console.ForegroundColor = ConsoleColor.White;
 
-                    int hresult = functions[i].Invoke(this);
+                    functions[i].Invoke(this, &hresult);
 
                     if (hresult != 0)
                     {
