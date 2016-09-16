@@ -99,7 +99,6 @@ namespace Cosmos.Kernel.Tests.System.IO
                 rw.Write((byte)0x42);
                 rw.Write('U');
                 rw.Write("Unknown6656");
-                rw.Write(4.2m);
                 rw.Write(4.2f);
                 rw.Write(4.2d);
                 rw.Write(42);
@@ -116,7 +115,6 @@ namespace Cosmos.Kernel.Tests.System.IO
                 writeresult(rd.ReadByte() == 0x42);
                 writeresult(rd.ReadChar() == 'U');
                 writeresult(rd.ReadString() == "Unknown6656");
-                writeresult(rd.ReadDecimal() == 4.2m);
                 writeresult(rd.ReadSingle() == 4.2f);
                 writeresult(rd.ReadDouble() == 4.2d);
                 writeresult(rd.ReadInt32() == 42);

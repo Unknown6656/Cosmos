@@ -980,6 +980,5 @@ namespace Cosmos.Kernel.Tests.Fat
         }
 
         #endregion
-
     }
 }
