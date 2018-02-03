@@ -11,14 +11,22 @@ namespace Cosmos.Compiler.Tests.Bcl.System.Collections.Generic
     {
         public static void Execute()
         {
-            Dictionary<String, Object> commands = new Dictionary<String, Object>()
+            var dictionary = new Dictionary<string, string>
             {
-                {"echo", "ECHO"},
-                {"reboot", "REBOOT" },
-                {"shutdown", "SHUTDOWN"}
+                {"a", "a"},
+                {"b", "b" },
+                {"c", "c"}
             };
 
-            Assert.IsTrue(commands.ContainsKey("echo"), "Dictionary ContainsKey does not work");
+            Assert.IsTrue(dictionary.ContainsKey("a"), "Dictionary ContainsKey does not work1");
+            Assert.IsFalse(dictionary.ContainsKey("d"), "Dictionary ContainsKey does not work 2");
+            
+
+
+            //String test
+            Assert.IsTrue(dictionary["a"] == "a", "Dictionary string not work");
+            dictionary["b"] = "d";
+            Assert.IsTrue(dictionary["b"] == "d", "Dictionary string been reset not working");
         }
     }
 }
