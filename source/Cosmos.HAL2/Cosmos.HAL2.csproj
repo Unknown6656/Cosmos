@@ -1,20 +1,18 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <SignAssembly>True</SignAssembly>
-        <AssemblyOriginatorKeyFile>..\..\Cosmos.snk</AssemblyOriginatorKeyFile>
+        <RootNamespace>Cosmos.HAL</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\IL2CPU\source\IL2CPU.API\IL2CPU.API.csproj" />
-        <ProjectReference Include="..\Cosmos.Common\Cosmos.Common.csproj" />
-        <ProjectReference Include="..\Cosmos.Core\Cosmos.Core.csproj" />
-        <ProjectReference Include="..\Cosmos.Debug.Kernel\Cosmos.Debug.Kernel.csproj" />
+        <PackageReference Include="IL2CPU.API" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Properties\" />
+        <ProjectReference Include="..\Cosmos.Common\Cosmos.Common.csproj" />
+        <ProjectReference Include="..\Cosmos.Core\Cosmos.Core.csproj" />
+        <ProjectReference Include="..\Cosmos.Debug.Kernel\Cosmos.Debug.Kernel.csproj" />
     </ItemGroup>
 
 </Project>

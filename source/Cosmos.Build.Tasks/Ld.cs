@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -28,7 +29,9 @@ namespace Cosmos.Build.Tasks
         #endregion
 
         protected override string ToolName => "ld.exe";
+
         protected override MessageImportance StandardErrorLoggingImportance => MessageImportance.High;
+        protected override MessageImportance StandardOutputLoggingImportance => MessageImportance.High;
 
         private static bool IsValidAddress(string aAddress)
         {
@@ -139,5 +142,20 @@ namespace Cosmos.Build.Tasks
 
             return xBuilder.ToString();
         }
+
+        public override bool Execute()
+        {
+            var xSW = Stopwatch.StartNew();
+            try
+            {
+                return base.Execute();
+            }
+            finally
+            {
+                xSW.Stop();
+                Log.LogMessage(MessageImportance.High, "LD task took {0}", xSW.Elapsed);
+            }
+        }
+
     }
 }

@@ -1,40 +1,63 @@
 ﻿using System;
-using System.IO;
 using System.Runtime.InteropServices;
-using Microsoft.VisualStudio;
+using System.Threading;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
+using Task = System.Threading.Tasks.Task;
 
 using Cosmos.VS.DebugEngine.Commands;
+
+[assembly: ProvideBindingRedirection(
+    AssemblyName = "SQLitePCLRaw.batteries_green",
+    NewVersion = "1.1.10.86",
+    OldVersionLowerBound = "1.0.0.0",
+    OldVersionUpperBound = "1.1.10.86")]
+
+[assembly: ProvideBindingRedirection(
+    AssemblyName = "SQLitePCLRaw.batteries_v2",
+    NewVersion = "1.1.10.86",
+    OldVersionLowerBound = "1.0.0.0",
+    OldVersionUpperBound = "1.1.10.86")]
+
+[assembly: ProvideBindingRedirection(
+    AssemblyName = "SQLitePCLRaw.core",
+    NewVersion = "1.1.10.86",
+    OldVersionLowerBound = "1.0.0.0",
+    OldVersionUpperBound = "1.1.10.86")]
+
+[assembly: ProvideBindingRedirection(
+    AssemblyName = "SQLitePCLRaw.provider.e_sqlite3",
+    NewVersion = "1.1.10.86",
+    OldVersionLowerBound = "1.0.0.0",
+    OldVersionUpperBound = "1.1.10.86")]
 
 namespace Cosmos.VS.DebugEngine
 {
     [Guid(Guids.guidPackageString)]
-    [PackageRegistration(UseManagedResourcesOnly = true)]
+    [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    [ProvideAutoLoad(VSConstants.UICONTEXT.ShellInitialized_string)]
-    public sealed class CosmosDebugEnginePackage : Package, IOleCommandTarget
+    internal sealed class CosmosDebugEnginePackage : AsyncPackage, IOleCommandTarget
     {
         private IOleCommandTarget packageCommandTarget;
         private DebugCommandHandler packageCommandHandler;
 
-        protected override void Initialize()
+        protected override async Task InitializeAsync(
+            CancellationToken cancellationToken,
+            IProgress<ServiceProgressData> progress)
         {
-            base.Initialize();
+            await base.InitializeAsync(cancellationToken, progress);
 
-            // TODO: remove this, as well as ProvideAutoLoad, if and when https://github.com/ericsink/SQLitePCL.raw/issues/181 is resolved.
-            var xDir = IntPtr.Size == 4 ? "x86" : "x64";
-            Environment.SetEnvironmentVariable("PATH",
-                String.Join(";", Environment.GetEnvironmentVariable("PATH"),
-                    Path.Combine(Path.GetDirectoryName(typeof(CosmosDebugEnginePackage).Assembly.Location), xDir)));
+            await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
-            packageCommandTarget = GetService(typeof(IOleCommandTarget)) as IOleCommandTarget;
+            packageCommandTarget = await GetServiceAsync(typeof(IOleCommandTarget)).ConfigureAwait(true) as IOleCommandTarget;
             packageCommandHandler = new DebugCommandHandler(this);
         }
 
         int IOleCommandTarget.Exec(ref Guid cmdGroup, uint nCmdID, uint nCmdExecOpt, IntPtr pvaIn, IntPtr pvaOut)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             if (cmdGroup == Guids.DebugEngineCmdSetGuid)
             {
                 return packageCommandHandler.Execute(nCmdID, nCmdExecOpt, pvaIn, pvaOut);
@@ -45,6 +68,8 @@ namespace Cosmos.VS.DebugEngine
 
         int IOleCommandTarget.QueryStatus(ref Guid cmdGroup, uint cCmds, OLECMD[] prgCmds, IntPtr pCmdText)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             if (cmdGroup == Guids.DebugEngineCmdSetGuid)
             {
                 return packageCommandHandler.Query(cCmds, prgCmds, pCmdText);

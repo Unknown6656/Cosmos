@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -33,6 +34,9 @@ namespace Cosmos.Build.Tasks
         private OutputFormatEnum mOutputFormat;
 
         protected override string ToolName => "nasm.exe";
+
+        protected override MessageImportance StandardErrorLoggingImportance => MessageImportance.High;
+        protected override MessageImportance StandardOutputLoggingImportance => MessageImportance.High;
 
         protected override bool ValidateParameters()
         {
@@ -74,15 +78,16 @@ namespace Cosmos.Build.Tasks
 
             xBuilder.AppendSwitch("-g");
 
-            xBuilder.AppendSwitch("-f");
-            xBuilder.AppendSwitch(OutputFormat);
-
-            xBuilder.AppendSwitch("-o ");
-            xBuilder.AppendSwitch(OutputFile);
+            xBuilder.AppendSwitchIfNotNull("-f ", OutputFormat);
+            xBuilder.AppendSwitchIfNotNull("-o ", OutputFile);
 
             if (mOutputFormat == OutputFormatEnum.ELF)
             {
                 xBuilder.AppendSwitch("-dELF_COMPILATION");
+            }
+            else
+            {
+                xBuilder.AppendSwitch("-dBIN_COMPILATION");
             }
 
             xBuilder.AppendSwitch("-O0");
@@ -90,6 +95,21 @@ namespace Cosmos.Build.Tasks
             xBuilder.AppendFileNameIfNotNull(InputFile);
 
             return xBuilder.ToString();
+        }
+
+        public override bool Execute()
+        {
+            var xSW = Stopwatch.StartNew();
+
+            try
+            {
+                return base.Execute();
+            }
+            finally
+            {
+                xSW.Stop();
+                Log.LogMessage(MessageImportance.High, "Nasm task took {0}", xSW.Elapsed);
+            }
         }
     }
 }

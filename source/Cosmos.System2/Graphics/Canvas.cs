@@ -1,63 +1,25 @@
-﻿//#define COSMOSDEBUG
+//#define COSMOSDEBUG
 using System;
 using System.Drawing;
 using System.Collections.Generic;
-
-
 
 namespace Cosmos.System.Graphics
 {
     public abstract class Canvas
     {
-        protected Mode mode;
-        protected List<Mode> availableModes;
-        static protected Mode defaultGraphicMode;
+        /*
+         * IReadOnlyList<T> is not working, the Modes inside it become corrupted and then you get Stack Overflow
+         */
+        //public abstract IReadOnlyList<Mode> AvailableModes { get; }
+        public abstract List<Mode> AvailableModes { get; }
 
-        protected Canvas(Mode mode)
-        {
-            //Global.mDebugger.SendInternal($"Creating a new Canvas with Mode ${mode}");
+        public abstract Mode DefaultGraphicMode { get; }
 
-            availableModes = getAvailableModes();
-            defaultGraphicMode = getDefaultGraphicMode();
-            this.mode = mode;
-        }
+        public abstract Mode Mode { get; set; }
 
-        protected Canvas()
-        {
-            Global.mDebugger.SendInternal($"Creating a new Canvas with default graphic Mode");
-
-            availableModes = getAvailableModes();
-            defaultGraphicMode = getDefaultGraphicMode();
-            this.mode = defaultGraphicMode;
-        }
-
-        abstract public List<Mode> getAvailableModes();
-
-        abstract protected Mode getDefaultGraphicMode();
-
-        public List<Mode> AvailableModes
-        {
-            get
-            {
-                return availableModes;
-            }
-        }
-
-        public Mode DefaultGraphicMode
-        {
-            get
-            {
-                return defaultGraphicMode;
-            }
-        }
-
-        public abstract Mode Mode
-        {
-            get;
-            set;
-        }
-
-        /* Clear all the Canvas with the Black color */
+        /// <summary>
+        /// Clear all the Canvas with the Black color.
+        /// </summary>
         public void Clear()
         {
             Clear(Color.Black);
@@ -67,6 +29,7 @@ namespace Cosmos.System.Graphics
          * Clear all the Canvas with the specified color. Please note that it is a very naïve implementation and any
          * driver should replace it (or with an hardware command or if not possible with a block copy on the IoMemoryBlock)
          */
+
         public virtual void Clear(Color color)
         {
             Global.mDebugger.SendInternal($"Clearing the Screen with Color {color}");
@@ -74,16 +37,15 @@ namespace Cosmos.System.Graphics
             //    throw new ArgumentNullException(nameof(color));
 
             Pen pen = new Pen(color);
-            
-            for (int x = 0; x < mode.Rows; x++)
+
+            for (int x = 0; x < Mode.Rows; x++)
             {
-                for (int y = 0; y < mode.Columns; y++)
+                for (int y = 0; y < Mode.Columns; y++)
                 {
                     DrawPoint(pen, x, y);
                 }
             }
         }
-
 
         public void DrawPoint(Pen pen, Point point)
         {
@@ -94,11 +56,11 @@ namespace Cosmos.System.Graphics
 
         public abstract void DrawPoint(Pen pen, float x, float y);
 
+        public abstract Color GetPointColor(int x, int y);
+
         public virtual void DrawArray(Color[] colors, Point point, int width, int height)
         {
-
             DrawArray(colors, point.X, point.Y, width, height);
-
         }
 
         public abstract void DrawArray(Color[] colors, int x, int y, int width, int height);
@@ -123,6 +85,7 @@ namespace Cosmos.System.Graphics
          * To draw a diagonal line we use the fast version of the Bresenham's algorithm.
          * See http://www.brackeen.com/vga/shapes.html#4 for more informations.
          */
+
         private void DrawDiagonalLine(Pen pen, int dx, int dy, int x1, int y1)
         {
             int i, sdx, sdy, dxabs, dyabs, x, y, px, py;
@@ -170,6 +133,7 @@ namespace Cosmos.System.Graphics
          * DrawLine throw if the line goes out of the boundary of the Canvas, probably will be better to draw only the part
          * of line visibile. This is too "smart" to do here better do it in a future Window Manager.
          */
+
         public virtual void DrawLine(Pen pen, int x1, int y1, int x2, int y2)
         {
             if (pen == null)
@@ -223,7 +187,7 @@ namespace Cosmos.System.Graphics
             int y = 0;
             int e = 0;
 
-            while(x>=y)
+            while (x >= y)
             {
                 DrawPoint(pen, x_center + x, y_center + y);
                 DrawPoint(pen, x_center + y, y_center + x);
@@ -235,11 +199,11 @@ namespace Cosmos.System.Graphics
                 DrawPoint(pen, x_center + x, y_center - y);
 
                 y++;
-                if(e<=0)
+                if (e <= 0)
                 {
                     e += 2 * y + 1;
                 }
-                if(e>0)
+                if (e > 0)
                 {
                     x--;
                     e -= 2 * x + 1;
@@ -247,11 +211,10 @@ namespace Cosmos.System.Graphics
             }
         }
 
+        //
         public virtual void DrawCircle(Pen pen, Point point, int radius)
         {
-
             DrawCircle(pen, point.X, point.Y, radius);
-
         }
 
         //http://members.chello.at/~easyfilter/bresenham.html
@@ -275,7 +238,7 @@ namespace Cosmos.System.Graphics
             a *= 8 * a;
             b1 = 8 * b * b;
 
-            while (x>=0)
+            while (x >= 0)
             {
                 DrawPoint(pen, x_center + x, y_center + y);
                 DrawPoint(pen, x_center - x, y_center + y);
@@ -308,23 +271,17 @@ namespace Cosmos.System.Graphics
 
         public virtual void DrawSquare(Pen pen, Point point, int size)
         {
-
             DrawRectangle(pen, point.X, point.Y, size, size);
-
         }
 
         public virtual void DrawSquare(Pen pen, int x, int y, int size)
         {
-
             DrawRectangle(pen, x, y, size, size);
-
         }
 
         public virtual void DrawRectangle(Pen pen, Point point, int width, int height)
         {
-
             DrawRectangle(pen, point.X, point.Y, width, height);
-
         }
 
         public virtual void DrawRectangle(Pen pen, int x, int y, int width, int height)
@@ -335,7 +292,6 @@ namespace Cosmos.System.Graphics
              */
             if (pen == null)
                 throw new ArgumentNullException(nameof(pen));
-
 
             /* The check of the validity of x and y are done in DrawLine() */
 
@@ -370,9 +326,7 @@ namespace Cosmos.System.Graphics
 
         public virtual void DrawFilledRectangle(Pen pen, Point point, int width, int height)
         {
-
             DrawFilledRectangle(pen, point.X, point.Y, width, height);
-
         }
 
         public virtual void DrawFilledRectangle(Pen pen, int x_start, int y_start, int width, int height)
@@ -390,38 +344,39 @@ namespace Cosmos.System.Graphics
 
         public virtual void DrawTriangle(Pen pen, Point point0, Point point1, Point point2)
         {
-
             DrawTriangle(pen, point0.X, point0.Y, point1.X, point1.Y, point2.X, point2.Y);
-
         }
 
         public virtual void DrawTriangle(Pen pen, int v1x, int v1y, int v2x, int v2y, int v3x, int v3y)
         {
-
             DrawLine(pen, v1x, v1y, v2x, v2y);
             DrawLine(pen, v1x, v1y, v3x, v3y);
             DrawLine(pen, v2x, v2y, v3x, v3y);
-
         }
 
-
-        
-        public void DrawRectangle(Pen pen, float x_start, float y_start, float width, float height)
+        public virtual void DrawRectangle(Pen pen, float x_start, float y_start, float width, float height)
         {
             throw new NotImplementedException();
         }
 
-        // Image and Font will be available in .NET Core 2.1
+        //Image and Font will be available in .NET Core 2.1
         // dot net core does not have Image
-        //public void DrawImage(Image image, int x, int y)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        //We are using a short term solution for bitmap
+        public virtual void DrawImage(Image image, int x, int y)
+        {
+            for (int _x = 0; _x < image.Width; _x++)
+            {
+                for (int _y = 0; _y < image.Height; _y++)
+                {
+                    DrawPoint(new Pen(Color.FromArgb(image.rawData[_x + _y * image.Width])), x + _x, y + _y);
+                }
+            }
+        }
 
-        //public void DrawImage(Image image, Point point)
-        //{
-        //    DrawImage(image, point.X, point.Y));
-        //}
+        public void DrawImage(Image image, Point point)
+        {
+            DrawImage(image, point.X, point.Y);
+        }
 
         //public void DrawString(String str, Font aFont, Brush brush, Point point)
         //{
@@ -437,85 +392,55 @@ namespace Cosmos.System.Graphics
         {
             Global.mDebugger.SendInternal($"CheckIfModeIsValid");
 
-            if (mode == null)
-                return false;
-
-            /* This would have been the more "modern" version but LINQ is not working 
+            /* This would have been the more "modern" version but LINQ is not working
 
             if (!availableModes.Exists(element => element == mode))
                 return true;
 
             */
 
-            foreach (var elem in availableModes)
+            foreach (var elem in AvailableModes)
             {
+                Global.mDebugger.SendInternal($"elem is {elem} mode is {mode}");
                 if (elem == mode)
                 {
+                    Global.mDebugger.SendInternal($"Mode {mode} found");
                     return true; // All OK mode does exists in availableModes
                 }
             }
 
+            Global.mDebugger.SendInternal($"Mode {mode} found");
             return false;
         }
 
         protected void ThrowIfModeIsNotValid(Mode mode)
         {
-            if (mode == null)
-            {
-                Global.mDebugger.SendInternal($"mode is null raising exception!");
-                throw new ArgumentNullException(nameof(mode));
-            }
-
-
             if (CheckIfModeIsValid(mode))
             {
                 return;
             }
 
-            Global.mDebugger.SendInternal($"mode is not found! Raising exception...");
+            Global.mDebugger.SendInternal($"Mode {mode} is not found! Raising exception...");
             /* 'mode' was not in the 'availableModes' List ==> 'mode' in NOT Valid */
             throw new ArgumentOutOfRangeException(nameof(mode), $"Mode {mode} is not supported by this Driver");
         }
 
         protected void ThrowIfCoordNotValid(Point point)
         {
-
             ThrowIfCoordNotValid(point.X, point.Y);
-
         }
-        
+
         protected void ThrowIfCoordNotValid(int x, int y)
         {
             if (x < 0 || x >= Mode.Columns)
             {
-                throw new ArgumentOutOfRangeException(nameof(x),$"x ({x}) is not between 0 and {Mode.Columns}");
+                throw new ArgumentOutOfRangeException(nameof(x), $"x ({x}) is not between 0 and {Mode.Columns}");
             }
 
             if (y < 0 || y >= Mode.Rows)
             {
                 throw new ArgumentOutOfRangeException(nameof(y), $"y ({y}) is not between 0 and {Mode.Rows}");
             }
-        }
-    }
-
-    public class Point
-    {
-        public Point(int x, int y)
-        {
-            this.X = x;
-            this.Y = y;
-        }
-        int x;
-        public int X
-        {
-            get { return x; }
-            set { x = value; }
-        }
-        int y;
-        public int Y
-        {
-            get { return y; }
-            set { y = value; }
         }
     }
 }

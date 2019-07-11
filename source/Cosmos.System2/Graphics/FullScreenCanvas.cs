@@ -1,38 +1,77 @@
-﻿//#define COSMOSDEBUG
-using Cosmos.System.Graphics;
+//#define COSMOSDEBUG
+using Cosmos.HAL;
 
 namespace Cosmos.System.Graphics
 {
     public static class FullScreenCanvas
     {
-        /*
-         * For now we hardcode that the VideoDriver is always VBE when we have more that a driver supported we need to find
-         * what to use when we do the 'new' (inside GetFullScreenCanvas() static methods). MyVideoDriver should be
-         * of type Canvas
-         */
-        static private Canvas MyVideoDriver = null;
+        private static PCIDevice SVGAIIDevice = PCI.GetDevice(VendorID.VMWare, DeviceID.SVGAIIAdapter);
 
-        public static Canvas GetFullScreenCanvas(Mode mode)
+        public static bool SVGAIIExist()
         {
-            Global.mDebugger.SendInternal("GetFullScreenCanvas() with mode " + mode);
+            if (SVGAIIDevice == null)
+            {
+                return false;
+            }
 
-            if (MyVideoDriver == null)
-                return MyVideoDriver = new VBEScreen(mode);
+            return SVGAIIDevice.DeviceExists;
+        }
 
-            /* We have already got a VideoDriver istance simple change its mode */
-            MyVideoDriver.Mode = mode;
-            return MyVideoDriver;
+        private static Canvas MyVideoDriver = null;
+
+        private static Canvas GetVideoDriver()
+        {
+            if (SVGAIIExist())
+            {
+                return new SVGAIIScreen();
+            }
+            else
+            {
+                return new VBEScreen();
+            }
+        }
+
+        private static Canvas GetVideoDriver(Mode mode)
+        {
+            if (SVGAIIExist())
+            {
+                return new SVGAIIScreen(mode);
+            }
+            else
+            {
+                return new VBEScreen(mode);
+            }
         }
 
         public static Canvas GetFullScreenCanvas()
         {
             Global.mDebugger.SendInternal($"GetFullScreenCanvas() with default mode");
             if (MyVideoDriver == null)
-                return new VBEScreen();
+            {
+                Global.mDebugger.SendInternal($"MyVideoDriver is null creating new object");
+                return MyVideoDriver = GetVideoDriver();
+            }
+            else
+            {
+                Global.mDebugger.SendInternal($"MyVideoDriver is NOT null using the old one changing mode to DefaulMode");
+                MyVideoDriver.Mode = MyVideoDriver.DefaultGraphicMode;
+                return MyVideoDriver;
+            }
+        }
 
-            /* We have already got a VideoDriver istance simple reset its mode to DefaultGraphicMode */
-            MyVideoDriver.Mode = MyVideoDriver.DefaultGraphicMode;
-            return MyVideoDriver;
+        public static Canvas GetFullScreenCanvas(Mode mode)
+        {
+            Global.mDebugger.SendInternal($"GetFullScreenCanvas() with mode" + mode);
+
+            if (MyVideoDriver == null)
+            {
+                return MyVideoDriver = GetVideoDriver(mode);
+            }
+            else
+            {
+                MyVideoDriver.Mode = mode;
+                return MyVideoDriver;
+            }
         }
     }
 }

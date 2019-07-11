@@ -128,10 +128,7 @@ namespace Cosmos.Core_Plugs.System
             return *(aFirstChar + aIndex);
         }
 
-        public static bool InternalUseRandomizedHashing()
-        {
-            return false;
-        }
+
 
         public static bool IsAscii(string aThis)
         {
@@ -309,8 +306,8 @@ namespace Cosmos.Core_Plugs.System
 
         public static bool StartsWith(string aThis, string aSubstring, StringComparison aComparison)
         {
-            Char[] di = aThis.ToCharArray();
-            Char[] ci = aSubstring.ToCharArray();
+            char[] di = aThis.ToCharArray();
+            char[] ci = aSubstring.ToCharArray();
             if (aSubstring.Length > aThis.Length)
             {
                 return false;
@@ -484,111 +481,54 @@ namespace Cosmos.Core_Plugs.System
             return -1;
         }
 
+        //        System.Int32  System.String.IndexOf(System.String, System.Int32, System.Int32, System.StringComparison)
+
         public static int IndexOf(string aThis, string aSubstring, int aIdx, int aLength, StringComparison aComparison)
         {
             return boyerMooreHorsepool(aSubstring, aThis.Substring(aIdx, aLength));
         }
 
-        //private static void WriteNumber(uint aValue,
-        //                  byte aBitCount)
-        //{
-        //    uint xValue = aValue;
-        //    byte xCurrentBits = aBitCount;
-        //    Console.Write("0x");
-        //    while (xCurrentBits >= 4)
-        //    {
-        //        xCurrentBits -= 4;
-        //        byte xCurrentDigit = (byte)((xValue >> xCurrentBits) & 0xF);
-        //        string xDigitString = null;
-        //        switch (xCurrentDigit)
-        //        {
-        //            case 0:
-        //                xDigitString = "0";
-        //                goto default;
-        //            case 1:
-        //                xDigitString = "1";
-        //                goto default;
-        //            case 2:
-        //                xDigitString = "2";
-        //                goto default;
-        //            case 3:
-        //                xDigitString = "3";
-        //                goto default;
-        //            case 4:
-        //                xDigitString = "4";
-        //                goto default;
-        //            case 5:
-        //                xDigitString = "5";
-        //                goto default;
-        //            case 6:
-        //                xDigitString = "6";
-        //                goto default;
-        //            case 7:
-        //                xDigitString = "7";
-        //                goto default;
-        //            case 8:
-        //                xDigitString = "8";
-        //                goto default;
-        //            case 9:
-        //                xDigitString = "9";
-        //                goto default;
-        //            case 10:
-        //                xDigitString = "A";
-        //                goto default;
-        //            case 11:
-        //                xDigitString = "B";
-        //                goto default;
-        //            case 12:
-        //                xDigitString = "C";
-        //                goto default;
-        //            case 13:
-        //                xDigitString = "D";
-        //                goto default;
-        //            case 14:
-        //                xDigitString = "E";
-        //                goto default;
-        //            case 15:
-        //                xDigitString = "F";
-        //                goto default;
-        //            default:
-        //                Console.Write(xDigitString);
-        //                break;
-        //        }
-        //    }
-        //}
-
         public static bool Contains(string aThis, string value)
         {
-            Char[] di = aThis.ToCharArray();
-            Char[] ci = value.ToCharArray();
             if (value.Length == aThis.Length)
             {
                 if (value == aThis)
                 {
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
-            else if (!(value.Length > aThis.Length) && (value.Length != aThis.Length))
+
+            if (value.Length > aThis.Length)
             {
-                for (int i = 0; i < aThis.Length; i++)
+                return false;
+            }
+
+            var di = aThis.ToCharArray();
+            var ci = value.ToCharArray();
+
+            for (int i = 0; i + value.Length <= aThis.Length; i++)
+            {
+                if (di[i] == ci[0])
                 {
-                    if (di[i] == ci[0])
+                    var equals = true;
+
+                    for (int j = 1; j < value.Length; j++)
                     {
-                        for (int j = 1; j < value.Length; j++)
+                        if (di[i + j] != ci[j])
                         {
-                            if (di[i + j] != ci[j])
-                            {
-                                return false;
-                            }
+                            equals = false;
                         }
+                    }
+
+                    if (equals)
+                    {
                         return true;
                     }
                 }
             }
+
             return false;
         }
 
@@ -599,8 +539,8 @@ namespace Cosmos.Core_Plugs.System
 
         public static bool EndsWith(string aThis, string aSubStr, StringComparison aComparison)
         {
-            Char[] di = aThis.ToCharArray();
-            Char[] ci = aSubStr.ToCharArray();
+            char[] di = aThis.ToCharArray();
+            char[] ci = aSubStr.ToCharArray();
             if (aThis.Length == aSubStr.Length)
             {
                 if (aThis == aSubStr)
@@ -626,11 +566,9 @@ namespace Cosmos.Core_Plugs.System
             }
         }
 
-        //        System.Int32  System.String.IndexOf(System.String, System.Int32, System.Int32, System.StringComparison)
-
         public static bool Equals(string aThis, string aThat, StringComparison aComparison)
         {
-#warning TODO: implement
+            // TODO: implement
             if (aComparison == StringComparison.OrdinalIgnoreCase)
             {
                 string xLowerThis = aThis.ToLower();
@@ -666,7 +604,7 @@ namespace Cosmos.Core_Plugs.System
         {
             if (aSeparators == null)
             {
-                throw new ArgumentNullException("aSeparators");
+                throw new ArgumentNullException(nameof(aSeparators));
             }
 
             int xResult = -1;
@@ -708,17 +646,17 @@ namespace Cosmos.Core_Plugs.System
             mDebugger.SendInternal($"nativeCompareOrdinalEx : aStrA|aIndexA = {aStrA}|{aIndexA}, aStrB|aIndexB = {aStrB}|{aIndexB}, aCount = {aCount}");
             if (aCount < 0)
             {
-                throw new ArgumentOutOfRangeException("aCount");
+                throw new ArgumentOutOfRangeException(nameof(aCount));
             }
 
             if (aIndexA < 0 || aIndexA > aStrA.Length)
             {
-                throw new ArgumentOutOfRangeException("aIndexA");
+                throw new ArgumentOutOfRangeException(nameof(aIndexA));
             }
 
             if (aIndexB < 0 || aIndexB > aStrB.Length)
             {
-                throw new ArgumentOutOfRangeException("aIndexB");
+                throw new ArgumentOutOfRangeException(nameof(aIndexB));
             }
 
             if (aStrA == null)
@@ -775,8 +713,8 @@ namespace Cosmos.Core_Plugs.System
 
         public static bool StartsWith(string aThis, string aSubStr, bool aIgnoreCase, CultureInfo aCulture)
         {
-            Char[] di = aThis.ToCharArray();
-            Char[] ci = aSubStr.ToCharArray();
+            char[] di = aThis.ToCharArray();
+            char[] ci = aSubStr.ToCharArray();
             if (aSubStr.Length > aThis.Length)
             {
                 return false;
@@ -799,11 +737,19 @@ namespace Cosmos.Core_Plugs.System
 
         public static string Replace(string aThis, string oldValue, string newValue)
         {
-            while (aThis.IndexOf(oldValue) != -1)
+            int skipOffset = 0;
+
+            while (aThis.Substring(skipOffset).IndexOf(oldValue) != -1)
             {
-                int xIndex = aThis.IndexOf(oldValue);
+                int xIndex = aThis.Substring(skipOffset).IndexOf(oldValue) + skipOffset;
                 aThis = aThis.Remove(xIndex, oldValue.Length);
                 aThis = aThis.Insert(xIndex, newValue);
+
+                skipOffset = xIndex + newValue.Length;
+                if (skipOffset > aThis.Length)
+                {
+                    break;
+                }
             }
             return aThis;
         }
@@ -1037,7 +983,9 @@ namespace Cosmos.Core_Plugs.System
                 return 0;
             }
             else
+            {
                 mDebugger.SendInternal($"strA ({strA}) is NOT the same object of StrB ({strB})");
+            }
 
             for (int i = 0; i < count; i++)
             {
@@ -1047,7 +995,9 @@ namespace Cosmos.Core_Plugs.System
                 xResult = a - b;
                 // Different characters we have finished
                 if (xResult != 0)
+                {
                     break;
+                }
             }
 
             return xResult;
@@ -1059,10 +1009,22 @@ namespace Cosmos.Core_Plugs.System
             return CompareOrdinalHelper(strA.ToLower(), indexA, countA, strB.ToLower(), indexB, countB);
         }
 
-        public static int GetHashCode(string aThis)
+        /*
+         * This disables Marvin Hashing end enable the legacy not randomized version of String HashCode.
+         * We could have ported Marvin to Cosmos as in CoreRt does exists a managed implementation but it will be used
+         * by String.GetHashCode() directly in Net Core 2.1 so better to wait. The only problem is that it needs Unsafe to work.
+         */
+        public static bool InternalUseRandomizedHashing()
         {
-            throw new NotImplementedException("String.GetHashCode()");
+            return false;
         }
+
+        public static int InternalMarvin32HashString(string s, int strLen, long additionalEntropy)
+        {
+            throw new NotImplementedException("String.InternalMarvin32HashString()");
+        }
+
+        /* It is not really needed to plug GetHashCode! */
 
         public static int Compare(string strA, int indexA, string strB, int indexB, int length, StringComparison comparisonType)
         {
